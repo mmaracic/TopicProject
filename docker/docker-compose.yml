@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  topic_activemq:
+    build: ./activemq
+    container_name: topic_activemq
+    image: topic_activemq
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    volumes:
+      - "topic_activemq_data:/opt/activemq:Z"
+
+volumes:
+  topic_activemq_data:
