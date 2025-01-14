@@ -5,7 +5,12 @@
  */
 package hr.mmaracic.topicproject.amq;
 
-import javax.jms.Message;
+import hr.mmaracic.topicproject.model.AccountEntry;
+import hr.mmaracic.topicproject.service.ProcessingService;
+import javax.jms.JMSException;
+import javax.jms.TextMessage;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
@@ -18,10 +23,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Component
 @Transactional
+@RequiredArgsConstructor
 public class MessageReceiver {
+    
+    @NonNull
+    private ProcessingService processingService;
 
-    @JmsListener(destination = "topicName", containerFactory = "jmsFactory")
-    public void onMessage(Message message){
+    @JmsListener(destination = "#{topicName}", containerFactory = "jmsFactory")
+    public void onMessage(TextMessage message) throws JMSException, ClassNotFoundException{
+        String type = message.getJMSType();
+        String groupId = message.getStringProperty("JMSXGroupID");
+        AccountEntry accountEntry = (AccountEntry) message.getBody((Class<AccountEntry>)Class.forName(type));
+        processingService.storeAccountEntry(accountEntry);
         log.info(message.toString());
     }
 }

@@ -31,18 +31,14 @@ public class ScheduledGeneratorService {
     private String topicName;
     
     @NonNull
-    private ObjectMapper objectMapper;
-    
-    @NonNull
     private GenerationService generationService;
     
     @NonNull
     private MessageSender messageSender;
     
     @Scheduled(fixedRate = 1000)
-    public void generateEntry() throws JsonProcessingException {
+    public void generateEntry() {
         AccountEntry accountEntry = generationService.generateEntry();
-        String strMessage = objectMapper.writeValueAsString(accountEntry);
-        messageSender.sendMessage(topicName, strMessage);
+        messageSender.sendMessage(topicName, accountEntry.getAccountId().toString(), accountEntry);
     } 
 }

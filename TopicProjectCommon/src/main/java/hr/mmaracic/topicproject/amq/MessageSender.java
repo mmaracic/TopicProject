@@ -5,6 +5,10 @@
  */
 package hr.mmaracic.topicproject.amq;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -27,17 +31,25 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class MessageSender {
-    
+
     @NonNull
     private JmsTemplate jmsTemplate;
+
+    @NonNull
+    private ObjectMapper objectMapper;
     
-    public void sendMessage(String destination, String message) {
-        jmsTemplate.send(destination, new MessageCreator() {
-            @Override
-            public Message createMessage(Session session) throws JMSException {
-                TextMessage textMessage = session.createTextMessage(message);
+    public void sendMessage(String destination, String groupId, Object message) {
+        jmsTemplate.send(destination, (Session session) -> {
+            try {
+                String strMessage = objectMapper.writeValueAsString(message);
+                TextMessage textMessage = session.createTextMessage(strMessage);
+                textMessage.setJMSType(message.getClass().getName());
+                textMessage.setStringProperty("JMSXGroupID", groupId);
                 return textMessage;
+            } catch (JsonProcessingException ex) {
+                log.error("Could not parse message ", message.toString());
             }
+            return null;
         });
     }
 }

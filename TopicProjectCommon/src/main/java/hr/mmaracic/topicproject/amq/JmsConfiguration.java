@@ -33,7 +33,7 @@ public class JmsConfiguration {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
         factory.setConcurrency("10");
-        factory.setPubSubDomain(Boolean.TRUE);
+        //factory.setPubSubDomain(Boolean.TRUE);
         return factory;
     }
 
@@ -41,7 +41,7 @@ public class JmsConfiguration {
     public JmsTemplate jmsTemplate(ConnectionFactory connectionFactory) {
         JmsTemplate template = new JmsTemplate();
         template.setConnectionFactory(connectionFactory);
-        template.setPubSubDomain(true);
+        //template.setPubSubDomain(true);
         return template;
     }
 
